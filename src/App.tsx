@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import './App.css'
 
 function App() {
-  const [sessionKey, setSessionKey] = useState('');
-  const [inputSessionKey, setInputSessionKey] = useState('');
   const navigate = useNavigate();
 
   const [rooms, setRooms] = useState([
@@ -44,12 +42,9 @@ function App() {
 
   return (
     <>
-      <h1>Vision Drafter</h1>
+      <h1>Docsify</h1>
 
-      <p>Auto Drafter is an advanced document automation tool specifically designed for law firms and legal professionals. 
-        It streamlines the process of generating various legal documents, such as letters, judicial affidavits, pleadings, 
-        and other necessary filings. By utilizing templates and customizable fields, Auto Drafter enhances efficiency, 
-        reduces errors, and saves time for legal practitioners.</p>
+      <p>Pear to pear text editor and video call using websockets.</p>
 
       {/* <div className="card">
         <button onClick={createSession}>Create Session</button>
