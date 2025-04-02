@@ -1,0 +1,33 @@
+[package]
+name = "src-rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+# ACTIX DEPENDENCIES
+actix = "0.13"
+actix-web = "4"
+actix-web-actors = "4"
+actix-cors = "0.6.4"
+actix-files = "0.6"
+
+# JSON Dependencies
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+
+# TOKIO DEPENDENCIES
+tokio-util = "0.7"
+tokio-stream = "0.1"
+tokio = { version = "1", features = ["full"] }
+
+
+# OTHER Dependencies
+reqwest = { version = "0.11", features = ["blocking", "json", "multipart", "stream"] }
+dotenv = "0.15"
+warp = "0.3"
+futures = "0.3"
+futures-util = "0.3"
+rand = "0.8"
+
+
