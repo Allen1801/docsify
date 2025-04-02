@@ -30,7 +30,7 @@ async fn main() -> std::io::Result<()> {
             //.route("/chat", web::post().to(handle_chat)) // Chat API
             //.route("/chat", web::get().to(ws_chat)) // WebSocket route
     })
-    .bind(("127.0.0.1", 6969))?
+    .bind(("0.0.0.0", 6969))?
     .run()
     .await
 }
