@@ -6,9 +6,9 @@ function App() {
   const navigate = useNavigate();
 
   const [rooms, setRooms] = useState([
-    { id: 'room1', name: 'Room 1', host: 'Jerico Salenga', isActive: false },
-    { id: 'room2', name: 'Room 2', host: 'Jerico Salenga', isActive: false },
-    { id: 'room3', name: 'Room 3', host: 'Jerico Salenga', isActive: false }
+    { id: 'room1', name: 'Room 1', isActive: false },
+    { id: 'room2', name: 'Room 2',  isActive: false },
+    { id: 'room3', name: 'Room 3', isActive: false }
   ]);
 
   // const createSession = () => {
@@ -62,7 +62,6 @@ function App() {
         {rooms.map(room => (
             <div className="card-container" key={room.id}>
               <h4>{room.name}</h4>
-              <p>{room.host}</p>
               <p>Status: {room.isActive ? 'Active 🟢' : 'Inactive 🔴'}</p>
               <button onClick={() => joinRoom(room.id)}>Join {room.name}</button>
             </div>
