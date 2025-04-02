@@ -15,8 +15,8 @@ const VideoChat: React.FC = () => {
 
         // ✅ Create WebSocket Connection to the signaling server
         console.log("🌍 Creating WebSocket Connection...");
-        socketRef.current = new WebSocket(`ws://localhost:6969/ws/${room}`);
-
+        // socketRef.current = new WebSocket(`ws://localhost:6969/ws/${room}`);
+        socketRef.current = new WebSocket(`https://docsify-pw6s.onrender.com/ws/${room}`);
         const ws = socketRef.current;
 
         // ✅ Create PeerConnection once
