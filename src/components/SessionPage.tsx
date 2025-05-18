@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, } from "react-router-dom";
 import QuillEditor from "./Quill/QuillEditor";
 import VideoConference from "./VideoConference/VideoConference";
 

@@ -1,21 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import './App.css'
 import { Container, Row, Col } from 'react-bootstrap';
-
-type USERS = {
-  id: number;
-  name: string;
-  email: string;
-}
-
-const MAX_USERS = 5;
 
 function App() {
   const [sessionKey, setSessionKey] = useState('');
   const [inputSessionKey, setInputSessionKey] = useState('');
-  const [rooms, setRooms] = useState<any[]>([])
+
   const navigate = useNavigate();
 
   // function to generate Session Key
