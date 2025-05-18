@@ -18,7 +18,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         let cors = Cors::default()
             // .allow_any_origin()
-            .allowed_origin("https://docsio.vercel.app/")
+            .allowed_origin("https://docsio.vercel.app")
             .allowed_methods(vec!["GET", "POST"])
             .allowed_headers(vec!["Content-Type"])
             .supports_credentials();
