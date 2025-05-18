@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run yjs\" \"npm run frontend\" \"npm run peerjs\" \"npm run backend\"",
+    "dev": "concurrently \"npm run yjs\" \"npm run frontend\" \"npm run peerjs\"",
     "frontend": "vite",
-    "backend": "cd src-rust && cargo watch -x run",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
