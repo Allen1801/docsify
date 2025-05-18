@@ -1,15 +1,17 @@
 use actix::{Actor, Addr, StreamHandler, AsyncContext, Handler, Message, Context, Recipient};
-use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer};
+use actix_web::{web, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 use std::collections::{HashMap, HashSet};
-use std::path;
 use std::sync::{Arc, Mutex};
-use actix::prelude::*;
+use serde::{Deserialize};
+use serde_json::json;
 
-// ✅ WebSocket Manager (Actor)
+// Top-level imports and actor declarations stay the same
+
+// WebSocket Manager
 pub struct WebSocketManager {
-    sessions: Arc<Mutex<HashMap<usize, Recipient<WebRTCMessage>>>>,
-    rooms: Arc<Mutex<HashMap<String, HashSet<usize>>>>, // Room -> Set of session IDs
+    sessions: Arc<Mutex<HashMap<String, Recipient<WebRTCMessage>>>>,
+    rooms: Arc<Mutex<HashMap<String, HashSet<String>>>>,
 }
 
 impl WebSocketManager {
@@ -21,14 +23,13 @@ impl WebSocketManager {
     }
 }
 
-// ✅ Implement Actor for WebSocketManager
 impl Actor for WebSocketManager {
     type Context = Context<Self>;
 }
 
-// Define a WebSocket session (Actor)
+// WebSocket Session
 pub struct WebSocketSession {
-    id: usize,
+    id: Option<String>, // Changed to Option<String> since it's assigned later
     manager: Addr<WebSocketManager>,
     room_id: String,
 }
@@ -36,26 +37,23 @@ pub struct WebSocketSession {
 impl Actor for WebSocketSession {
     type Context = ws::WebsocketContext<Self>;
 
-    fn started(&mut self, ctx: &mut Self::Context) {
-        let addr = ctx.address().recipient();
-        self.manager
-            .send(RegisterSession { id: self.id, addr, room_id: self.room_id.clone() })
-            .into_actor(self)
-            .then(|_, _, _| actix::fut::ready(()))
-            .wait(ctx);
-    }
-
     fn stopping(&mut self, _: &mut Self::Context) -> actix::Running {
-        self.manager.do_send(UnregisterSession { id: self.id, room_id: self.room_id.clone() });
+        if let Some(ref id) = self.id {
+            println!("Session {} stopping from room {}", id, self.room_id);
+            self.manager.do_send(UnregisterSession {
+                id: id.clone(),
+                room_id: self.room_id.clone(),
+            });
+        }
         actix::Running::Stop
     }
 }
 
-// ✅ Messages for WebRTC Signaling
+// Messages
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct RegisterSession {
-    pub id: usize,
+    pub id: String,
     pub addr: Recipient<WebRTCMessage>,
     pub room_id: String,
 }
@@ -63,35 +61,44 @@ pub struct RegisterSession {
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct UnregisterSession {
-    pub id: usize,
+    pub id: String,
     pub room_id: String,
 }
 
-#[derive(Message, Debug)]
+#[derive(Clone, Message, Debug)]
 #[rtype(result = "()")]
 pub struct WebRTCMessage {
-    pub sender_id: usize,
+    pub from: String,
+    pub to: Option<String>,
     pub room_id: String,
-    pub content: String, // Offer, Answer, ICE candidates
+    pub content: String,
 }
 
-// ✅ Handle WebSocketManager actions
+// Handlers for Manager
 impl Handler<RegisterSession> for WebSocketManager {
     type Result = ();
 
     fn handle(&mut self, msg: RegisterSession, _: &mut Self::Context) {
+        println!("Registering session {} to room {}", msg.id, msg.room_id);
         let mut sessions = self.sessions.lock().unwrap();
         let mut rooms = self.rooms.lock().unwrap();
 
-        println!("✅ Registering session: {} in room {}", msg.id, msg.room_id);
+        sessions.insert(msg.id.clone(), msg.addr);
+        rooms.entry(msg.room_id.clone()).or_insert_with(HashSet::new).insert(msg.id.clone());
 
-        sessions.insert(msg.id, msg.addr);
-        rooms.entry(msg.room_id.clone())
-            .or_insert_with(HashSet::new)
-            .insert(msg.id);
-
-        println!("📌 Current sessions: {:?}", sessions.keys());
-        println!("📌 Current rooms: {:?}", rooms);
+        let others = rooms.get(&msg.room_id).unwrap().clone();
+        for peer_id in others.into_iter().filter(|id| id != &msg.id) {
+            if let Some(addr) = sessions.get(&peer_id) {
+                let content = json!({ "type": "new-user", "from": msg.id }).to_string();
+                println!("Notifying session {} about new user {}", peer_id, msg.id);
+                let _ = addr.try_send(WebRTCMessage {
+                    from: msg.id.clone(),
+                    to: Some(peer_id),
+                    room_id: msg.room_id.clone(),
+                    content,
+                });
+            }
+        }
     }
 }
 
@@ -99,9 +106,10 @@ impl Handler<UnregisterSession> for WebSocketManager {
     type Result = ();
 
     fn handle(&mut self, msg: UnregisterSession, _: &mut Self::Context) {
-        let mut rooms = self.rooms.lock().unwrap();
-        if let Some(users) = rooms.get_mut(&msg.room_id) {
-            users.remove(&msg.id);
+        println!("Unregistering session {} from room {}", msg.id, msg.room_id);
+        self.sessions.lock().unwrap().remove(&msg.id);
+        if let Some(room) = self.rooms.lock().unwrap().get_mut(&msg.room_id) {
+            room.remove(&msg.id);
         }
     }
 }
@@ -110,87 +118,93 @@ impl Handler<WebRTCMessage> for WebSocketManager {
     type Result = ();
 
     fn handle(&mut self, msg: WebRTCMessage, _: &mut Self::Context) {
-        let rooms = self.rooms.lock().unwrap();
-        println!("📩 Received WebRTCMessage: {:?}", msg);
-
-        if let Some(users) = rooms.get(&msg.room_id) {
-            for &user_id in users {
-                if user_id != msg.sender_id {
-                    println!("📤 Forwarding message to user_id: {}", user_id);
-
-                    if let Some(addr) = self.sessions.lock().unwrap().get(&user_id) {
-                        addr.try_send(WebRTCMessage {
-                            sender_id: msg.sender_id,
-                            room_id: msg.room_id.clone(),
-                            content: msg.content.clone(),
-                        }).unwrap_or_else(|e| {
-                            println!("❌ Error forwarding message to {}: {:?}", user_id, e);
-                        });
-                    } else {
-                        println!("❌ No WebSocket session found for user {}", user_id);
-                    }
-                }
+        let msg_clone = msg.clone();
+        println!("Routing message from {} to {:?} in room {}", msg.from, msg.to, msg.room_id);
+        if let Some(to_id) = msg.to {
+            if let Some(addr) = self.sessions.lock().unwrap().get(&to_id) {
+                let _ = addr.try_send(msg_clone);
             }
-        } else {
-            println!("⚠️ Room {} not found", msg.room_id);
         }
     }
 }
 
-// ✅ Handle WebSocket messages in WebSocketSession
+// Client message types
+#[derive(Deserialize)]
+struct ClientSignal {
+    r#type: String,
+    from: String,
+    to: Option<String>,
+    room_id: String,
+    content: String,
+}
+
+#[derive(Deserialize)]
+struct JoinMessage {
+    r#type: String,
+    room: String,
+    peer_id: String,
+}
+
+// WebSocket message handling
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketSession {
-    fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, _ctx: &mut Self::Context) {
+    fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         if let Ok(ws::Message::Text(text)) = msg {
-            println!("Received WebSocket message: {}", text); // ✅ Log WebSocket message
+            println!("Received WebSocket text message: {}", text);
 
-            self.manager.do_send(WebRTCMessage {
-                sender_id: self.id,
-                room_id: self.room_id.clone(),
-                content: text.to_string(),
-            });
+            if let Ok(join) = serde_json::from_str::<JoinMessage>(&text) {
+                println!("Join message received: peerId = {}, room = {}", join.peer_id, join.room);
+                self.id = Some(join.peer_id.clone());
+
+                self.manager.do_send(RegisterSession {
+                    id: join.peer_id.clone(),
+                    addr: ctx.address().recipient(),
+                    room_id: join.room.clone(),
+                });
+                self.room_id = join.room;
+            } else if let Ok(parsed) = serde_json::from_str::<ClientSignal>(&text) {
+                self.manager.do_send(WebRTCMessage {
+                    from: parsed.from,
+                    to: parsed.to,
+                    room_id: parsed.room_id,
+                    content: parsed.content,
+                });
+            }
         }
     }
 }
 
-// ✅ Handle WebRTC messages in WebSocketSession
 impl Handler<WebRTCMessage> for WebSocketSession {
     type Result = ();
 
     fn handle(&mut self, msg: WebRTCMessage, ctx: &mut ws::WebsocketContext<Self>) {
+        println!("Session {:?} sending message: {}", self.id, msg.content);
         ctx.text(msg.content);
     }
 }
 
-// ✅ WebSocket route
+// WebSocket route
 pub async fn ws_index(
     req: HttpRequest,
     stream: web::Payload,
     path: web::Path<(String,)>,
     manager: web::Data<Addr<WebSocketManager>>,
 ) -> HttpResponse {
-    let id = rand::random::<usize>();
-    let (room_id,) = path.into_inner(); // Replace with dynamic room handling
-    println!("🛜 New WebSocket Connection in Room: {:?}", room_id);
+    let (room_id,) = path.into_inner();
+    println!("Establishing WebSocket connection in room {}", room_id);
 
-    ws::start(
-        WebSocketSession { id, manager: manager.get_ref().clone(), room_id },
+    match ws::start(
+        WebSocketSession {
+            id: None,
+            manager: manager.get_ref().clone(),
+            room_id,
+        },
         &req,
         stream,
-    )
-    .unwrap()
+    ) {
+        Ok(resp) => resp,
+        Err(err) => {
+            eprintln!("WebSocket start error: {:?}", err);
+            HttpResponse::InternalServerError().finish()
+        }
+    }
 }
-
-// // ✅ Start Actix Web Server
-// #[actix_web::main]
-// async fn main() -> std::io::Result<()> {
-//     let manager = WebSocketManager::new().start();
-
-//     HttpServer::new(move || {
-//         App::new()
-//             .app_data(web::Data::new(manager.clone()))
-//             .route("/ws", web::get().to(ws_index))
-//     })
-//     .bind("127.0.0.1:8080")?
-//     .run()
-//     .await
-// }

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import App from './App';
-import SessionPage from './components/SessionPage';
+import App from '../App';
+import SessionPage from '../components/SessionPage';
+
 
 function Main() {
     return (
@@ -14,4 +15,3 @@ function Main() {
   }
   
 export default Main;
-  

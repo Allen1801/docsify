@@ -1,72 +1,68 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './App.css'
+import { Container, Row, Col } from 'react-bootstrap';
+
+type USERS = {
+  id: number;
+  name: string;
+  email: string;
+}
+
+const MAX_USERS = 5;
 
 function App() {
+  const [sessionKey, setSessionKey] = useState('');
+  const [inputSessionKey, setInputSessionKey] = useState('');
+  const [rooms, setRooms] = useState<any[]>([])
   const navigate = useNavigate();
 
-  const [rooms, setRooms] = useState([
-    { id: 'room1', name: 'Room 1', isActive: false },
-    { id: 'room2', name: 'Room 2',  isActive: false },
-    { id: 'room3', name: 'Room 3', isActive: false }
-  ]);
+  // function to generate Session Key
+  const createSession = () => {
+    const uniqueSessionKey = [...Array(12)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+    setSessionKey(uniqueSessionKey);
+    navigate(`/session/${uniqueSessionKey}`);
+  };
 
-  // const createSession = () => {
-  //   const uniqueSessionKey = [...Array(12)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-  //   setSessionKey(uniqueSessionKey);
-  //   navigate(`/session/${uniqueSessionKey}`);
-  // };
-
-  // const joinSession = () => {
-  //   if (inputSessionKey.length === 12) {
-  //     navigate(`/session/${inputSessionKey}`);
-  //   } else {
-  //     alert("Invalid session key. It must be a 12-digit hex code.");
-  //   }
-  // };
-
-  useEffect(() => {
-    const updateRooms = rooms.map(room => ({
-      ...room,
-      isActive: localStorage.getItem(room.id) === 'true'
-    }));
-    setRooms(updateRooms);
-  }, []);
-
-  const joinRoom = (roomid: string) => {
-    localStorage.setItem(roomid, 'true')
-    localStorage.setItem("Current Room", roomid)
-    navigate(`/${roomid}`);
-
+  // function to join Session
+  const joinSession = () => {
+    if (inputSessionKey.length === 12) {
+    navigate(`/session/${inputSessionKey}`);
+    } else {
+    alert("Invalid session key. It must be a 12-digit hex code.");
   }
+  };
 
   return (
     <>
-      <h1>Docsify</h1>
+      <Container fluid className='d-flex flex-column justify-content-center align-items-center min-vh-100'>
+        <Row>
+          <Col>
+            <h1>Docsify</h1>
+          </Col>
+        </Row>
 
-      <p>Pear to pear text editor and video call using websockets.</p>
+        <Row className='px-5' style={{maxWidth: '70%'}}>
+          <Col >
+            <p>Pear to pear text editor and video call using websockets.</p>
+          </Col>
+        </Row>
 
-      {/* <div className="card">
-        <button onClick={createSession}>Create Session</button>
-        {sessionKey && <p>Session Key: #{sessionKey}</p>}
-        <input 
-          type="text" 
-          placeholder="Enter session key" 
-          value={inputSessionKey} 
-          onChange={(e) => setInputSessionKey(e.target.value)} 
-        />
-        <button onClick={joinSession}>Join</button>
-      </div> */}
-
-      <div className="card">
-        {rooms.map(room => (
-            <div className="card-container" key={room.id}>
-              <h4>{room.name}</h4>
-              <p>Status: {room.isActive ? 'Active 🟢' : 'Inactive 🔴'}</p>
-              <button onClick={() => joinRoom(room.id)}>Join {room.name}</button>
-            </div>
-          ))}
-      </div>
+        <Row>
+          <Col>
+            <button onClick={createSession}>Create Session</button>
+            {sessionKey && <p>Session Key: #{sessionKey}</p>}
+            <input 
+              type="text" 
+              placeholder="Enter session key" 
+              value={inputSessionKey} 
+              onChange={(e) => setInputSessionKey(e.target.value)} 
+            />
+            <button onClick={joinSession}>Join</button>
+          </Col>
+        </Row>
+      </Container>
     </>
   )
 }

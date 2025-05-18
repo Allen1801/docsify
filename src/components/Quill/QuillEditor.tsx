@@ -17,7 +17,7 @@ const QuillEditor: React.FC = () => {
 
     // Create a Yjs document
     const ydoc = new Y.Doc();
-    const provider = new WebsocketProvider("ws://localhost:1234", room || "default", ydoc);
+    const provider = new WebsocketProvider("https://docsify-pw6s.onrender.com", room || "default", ydoc);
     const ytext = ydoc.getText("quill");
 
     // Create a new editor only if not already initialized
@@ -49,7 +49,9 @@ const QuillEditor: React.FC = () => {
     };
   }, [room]);
 
-  return <div ref={editorContainerRef} style={{ height: "550px" }} />;
+  return (
+    <div ref={editorContainerRef} style={{ height: "80vh", width: "100%" }} />
+  );
 };
 
 export default QuillEditor;
