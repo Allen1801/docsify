@@ -8,7 +8,7 @@ function Main() {
       <Router>
         <Routes>
           <Route path="/" element={<App />} />
-          <Route path="/:room" element={<SessionPage />} />
+          <Route path="/session/:room" element={<SessionPage />} />
         </Routes>
       </Router>
     );
