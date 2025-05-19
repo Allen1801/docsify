@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"npm run yjs\" \"npm run frontend\" \"npm run peerjs\"",
     "frontend": "vite",
-    "build": "concurrently \"npm run yjs\" \"npm run peerjs\" && tsc -b && vite build",
+    "build": "concurrently \"npm run yjs\" && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "yjs": "y-websocket --port 1234",
