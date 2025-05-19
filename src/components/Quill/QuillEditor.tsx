@@ -2,9 +2,8 @@ import React, { useEffect, useRef } from "react";
 import Quill from "quill";
 import { QuillBinding } from "y-quill";
 import * as Y from "yjs";
-import { WebsocketProvider } from "y-websocket";
+import { WebsocketProvider } from "y-websocket"; // You can remove this if using custom WebSocket
 import { useParams } from "react-router-dom";
-
 import "quill/dist/quill.snow.css"; // Import Quill styles
 
 const QuillEditor: React.FC = () => {
@@ -17,7 +16,7 @@ const QuillEditor: React.FC = () => {
 
     // Create a Yjs document
     const ydoc = new Y.Doc();
-    const provider = new WebsocketProvider("wss://docsify-pw6s.onrender.com/ws", room || "default", ydoc);
+    const provider = new WebsocketProvider("https://docsify-pw6s.onrender.com/ws", room || "default", ydoc);
     const ytext = ydoc.getText("quill");
 
     // Create a new editor only if not already initialized
