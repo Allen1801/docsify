@@ -100,7 +100,7 @@ const VideoChat: React.FC = () => {
       host: "docsify-pw6s.onrender.com",
       port: 9000,
       path: "/peerjs",
-      secure: true,
+      //secure: true,
       debug: 3,
     });
     peerRef.current = peer;
