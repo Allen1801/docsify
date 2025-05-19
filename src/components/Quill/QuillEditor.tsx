@@ -9,7 +9,7 @@ const QuillEditor: React.FC = () => {
   const quillInstance = useRef<Quill | null>(null);
   const [peerConnection, setPeerConnection] = useState<RTCPeerConnection | null>(null);
   const [dataChannel, setDataChannel] = useState<RTCDataChannel | null>(null);
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [_socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
     if (!editorContainerRef.current || quillInstance.current) return;
