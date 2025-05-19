@@ -17,7 +17,7 @@ const QuillEditor: React.FC = () => {
 
     // Create a Yjs document
     const ydoc = new Y.Doc();
-    const provider = new WebsocketProvider("wss://docsify-pw6s.onrender.com/quill", room || "default", ydoc);
+    const provider = new WebsocketProvider("wss://demos.yjs.dev", room || "default", ydoc);
     const ytext = ydoc.getText("quill");
 
     // Create a new editor only if not already initialized
