@@ -1,11 +1,11 @@
-import { useParams, } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import QuillEditor from "./Quill/QuillEditor";
-import VideoConference from "./VideoConference/VideoConference";
+import VideoConference from "./Video/VideoConference";
 
 // import ChatSidebar from "./Chat"; 
 // import AiChatSidebar from "./AiChat";
 // import "./css/SessionPage.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 
 function SessionPage() {

@@ -1,10 +1,11 @@
 use actix::{Actor, Addr, StreamHandler, AsyncContext, Handler, Message, Context, Recipient};
-use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex};
-use serde::{Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_json::json;
+use actix::prelude::*;
 
 // Top-level imports and actor declarations stay the same
 
@@ -142,7 +143,7 @@ struct ClientSignal {
 struct JoinMessage {
     r#type: String,
     room: String,
-    peer_id: String,
+    peerId: String,
 }
 
 // WebSocket message handling
@@ -152,11 +153,11 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketSession 
             println!("Received WebSocket text message: {}", text);
 
             if let Ok(join) = serde_json::from_str::<JoinMessage>(&text) {
-                println!("Join message received: peerId = {}, room = {}", join.peer_id, join.room);
-                self.id = Some(join.peer_id.clone());
+                println!("Join message received: peerId = {}, room = {}", join.peerId, join.room);
+                self.id = Some(join.peerId.clone());
 
                 self.manager.do_send(RegisterSession {
-                    id: join.peer_id.clone(),
+                    id: join.peerId.clone(),
                     addr: ctx.address().recipient(),
                     room_id: join.room.clone(),
                 });

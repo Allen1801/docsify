@@ -3,27 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import './App.css'
 import { Container, Row, Col } from 'react-bootstrap';
 
+
 function App() {
   const [sessionKey, setSessionKey] = useState('');
   const [inputSessionKey, setInputSessionKey] = useState('');
-
   const navigate = useNavigate();
 
-  // function to generate Session Key
   const createSession = () => {
     const uniqueSessionKey = [...Array(12)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
     setSessionKey(uniqueSessionKey);
     navigate(`/session/${uniqueSessionKey}`);
   };
 
-  // function to join Session
   const joinSession = () => {
     if (inputSessionKey.length === 12) {
-    navigate(`/session/${inputSessionKey}`);
+      navigate(`/session/${inputSessionKey}`);
     } else {
-    alert("Invalid session key. It must be a 12-digit hex code.");
-  }
+      alert("Invalid session key. It must be a 12-digit hex code.");
+    }
   };
+
 
   return (
     <>

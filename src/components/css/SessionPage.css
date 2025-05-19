@@ -1,0 +1,52 @@
+/* .session-page {
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  background-color: aqua;
+} */
+
+.session-container {
+  display: flex;
+  flex: 1;
+  padding: 20px;
+  gap: 20px;
+}
+
+.editor-container {
+  flex: 2; /* Allows editor to take more space */
+  min-width: 400px;
+}
+
+.video-container {
+  flex: 1; /* Adjusts size to fit */
+  min-width: 300px;
+}
+
+/* Chat Toggle Button - Ensures it stays at the Top Right */
+.chat-toggle-btn {
+  position: fixed;   /* Stays in place */
+  top: 10px;         /* Distance from the top */
+  right: 10px;       /* Distance from the right */
+  background: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;     /* Ensures it's above other elements */
+}
+
+.aichat-toggle-btn {
+  position: fixed;   /* Stays in place */
+  top: 10px;         /* Distance from the top */
+  left: 10px;        /* Distance from the left */
+  background: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;     /* Ensures it's above other elements */
+}

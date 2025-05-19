@@ -88,7 +88,7 @@ const VideoChat: React.FC = () => {
   };
 
   useEffect(() => {
-    const ws = new WebSocket(`https://docsify-pw6s.onrender.com/ws/${room}`);
+    const ws = new WebSocket(`ws://localhost:6969/ws/${room}`);
     socketRef.current = ws;
 
     ws.onopen = () => console.log("✅ WS connected");
@@ -97,7 +97,7 @@ const VideoChat: React.FC = () => {
 
     const myPeerId = uuidv4(); // 🎯 custom UUID
     const peer = new Peer(myPeerId, {
-      host: "https://docsify-pw6s.onrender.com",
+      host: "localhost",
       port: 9000,
       path: "/peerjs",
       debug: 3,

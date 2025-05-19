@@ -29,8 +29,11 @@ warp = "0.3"
 futures = "0.3"
 futures-util = "0.3"
 rand = "0.8"
+
 jsonwebtoken = "9"
 sqlx = { version = "0.7.1", features = ["postgres", "runtime-tokio-native-tls", "macros"] }
 bcrypt = "0.15"
 uuid = {version = "1.4", features = ["v4"] }
 chrono = "0.4.19"
+
+
