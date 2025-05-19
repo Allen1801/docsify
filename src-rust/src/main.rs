@@ -18,8 +18,8 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         let cors = Cors::default()
-            .allow_any_origin()
-            // .allowed_origin("http://127.0.0.1:5173")
+            // .allow_any_origin()
+            .allowed_origin("https://docsio.vercel.app/")
             .allowed_methods(vec!["GET", "POST"])
             .allowed_headers(vec!["Content-Type"]);
 
@@ -31,7 +31,7 @@ async fn main() -> std::io::Result<()> {
             //.route("/chat", web::post().to(handle_chat)) // Chat API
             //.route("/chat", web::get().to(ws_chat)) // WebSocket route
     })
-    .bind(("127.0.0.1", 6969))?
+    .bind(("0.0.0.0", 6969))?
     .run()
     .await
 }

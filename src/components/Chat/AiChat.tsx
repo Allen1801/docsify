@@ -20,7 +20,7 @@ const AiChatSidebar: React.FC = () => {
   const [username, setUsername] = useState("");
 
   // WebSocket provider (Ensures persistence)
-  const provider = new WebsocketProvider("ws://localhost:1234", sessionKey ?? "default-room", ydoc);
+  const provider = new WebsocketProvider("https://docsify-pw6s.onrender.com", sessionKey ?? "default-room", ydoc);
   const yArray = ydoc.getArray<Message>("ai-chat"); // Use a different array name for AI chat
 
   useEffect(() => {

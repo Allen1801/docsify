@@ -20,7 +20,7 @@ const ChatSidebar: React.FC = () => {
   const [username, setUsername] = useState("");
   
   // WebSocket provider (Ensures persistence)
-  const provider = new WebsocketProvider("ws://localhost:1234", room ?? "default-room", ydoc);
+  const provider = new WebsocketProvider("https://docsify-pw6s.onrender.com", room ?? "default-room", ydoc);
   const yArray = ydoc.getArray<Message>("chat");
 
   useEffect(() => {
