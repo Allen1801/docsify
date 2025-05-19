@@ -97,9 +97,10 @@ const VideoChat: React.FC = () => {
 
     const myPeerId = uuidv4(); // 🎯 custom UUID
     const peer = new Peer(myPeerId, {
-      host: "https://docsify-pw6s.onrender.com",
+      host: "docsify-pw6s.onrender.com",
       port: 9000,
       path: "/peerjs",
+      secure: true,
       debug: 3,
     });
     peerRef.current = peer;
